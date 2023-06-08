@@ -1,11 +1,11 @@
 package dgraph
 
 import (
-	"github.com/lempiy/dgraph/ascii"
-	"github.com/lempiy/dgraph/core"
+	"github.com/helmwave/asciigraph/ascii"
+	"github.com/helmwave/asciigraph/core"
 )
 
-func DrawGraph(list []core.NodeInput) (canvas *ascii.Canvas, err error) {
+func DrawGraph(list []core.NodeInput, o ascii.DrawOptions) (canvas *ascii.Canvas, err error) {
 	g, err := core.NewGraph(list)
 	if err != nil {
 		return
@@ -14,7 +14,7 @@ func DrawGraph(list []core.NodeInput) (canvas *ascii.Canvas, err error) {
 	if err != nil {
 		return
 	}
-	canvas, err = ascii.DrawAsciiMatrix(mtx)
+	canvas, err = ascii.DrawAsciiMatrix(mtx, o)
 	if err != nil {
 		return
 	}

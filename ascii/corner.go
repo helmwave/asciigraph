@@ -1,6 +1,6 @@
 package ascii
 
-import "github.com/lempiy/dgraph/core"
+import "github.com/helmwave/asciigraph/core"
 
 type Corner struct {
 	x           int

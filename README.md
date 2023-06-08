@@ -11,8 +11,10 @@ import (
 	"encoding/json"
 	"log"
 	"fmt"
-	"github.com/lempiy/dgraph"
-	"github.com/lempiy/dgraph/core"
+	
+	"github.com/helmwave/asciigraph"
+	"github.com/helmwave/asciigraph/core"
+	"github.com/helmwave/asciigraph/ascii"
 )
 
 const data = `[
@@ -97,7 +99,7 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	canvas, err := dgraph.DrawGraph(list)
+	canvas, err := dgraph.DrawGraph(list, ascii.Default)
 	if err != nil {
 		log.Fatal(err)
 		return

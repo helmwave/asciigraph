@@ -1,1 +1,1 @@
-module github.com/lempiy/dgraph
+module github.com/helmwave/asciigraph

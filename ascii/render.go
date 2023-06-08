@@ -2,11 +2,8 @@ package ascii
 
 import (
 	"fmt"
-	"github.com/lempiy/dgraph/core"
+	"github.com/helmwave/asciigraph/core"
 )
-
-const CellHeight = 3
-const MinCellWidth = 3
 
 type geometry interface {
 	GetEntryToVector(direction Direction, isTarget bool) [2]int
@@ -26,41 +23,41 @@ func newContext2D(c *Canvas, nodeMap map[string]*core.MatrixNode) *context2D {
 	}
 }
 
-func DrawAsciiMatrix(mtx *core.Matrix) (c *Canvas, err error) {
+func DrawAsciiMatrix(mtx *core.Matrix, o DrawOptions) (c *Canvas, err error) {
 	rows := mtx.Height()
-	colWidths := getColumnWidths(mtx)
-	width := sum(colWidths...) + CellHeight*(mtx.Width()-1)
-	height := mtx.Height()*CellHeight*2 - CellHeight
+	colWidths := getColumnWidths(mtx, o.MinCellWidth, o.MaxWidth, o.Padding)
+	width := sum(colWidths...) + o.CellHeight*(mtx.Width()-1)
+	height := mtx.Height()*o.CellHeight*2 - o.CellHeight
 	c = NewCanvas(width, height)
 	cX := 0
 	ctx := newContext2D(c, mtx.Normalize())
 	for x, colWidth := range colWidths {
 		for y := 0; y < rows; y++ {
-			cY := 2 * y * CellHeight
+			cY := 2 * y * o.CellHeight
 			node := mtx.GetByCoords(x, y)
 			// TODO handle anchor on lines
 			switch {
 			case node == nil:
 			case node.IsAnchor:
-				err = ctx.drawCorner(c, cX, cY, colWidth, CellHeight, node.Id, node.Orientation)
+				err = ctx.drawCorner(c, cX, cY, colWidth, o.CellHeight, node.Id, node.Orientation)
 			default:
-				err = ctx.drawNode(c, cX, cY, colWidth, CellHeight, node)
+				err = ctx.drawNode(c, cX, cY, colWidth, o.CellHeight, node, o.MaxWidth, o.Padding)
 			}
 			if err != nil {
 				return
 			}
 		}
-		cX += colWidth + CellHeight
+		cX += colWidth + o.CellHeight
 	}
 	err = ctx.drawLines(c)
 	return
 }
 
-func (s *context2D) drawNode(c *Canvas, x1, y1, cellWidth, cellHeight int, node *core.NodeOutput) (err error) {
-	w := GetWidthFromTitle(node.Id)
+func (s *context2D) drawNode(c *Canvas, x1, y1, cellWidth, cellHeight int, node *core.NodeOutput, MaxWidth, Padding int) (err error) {
+	w := GetWidthFromTitle(node.Id, MaxWidth, Padding)
 	x1 += (cellWidth - w) / 2
 	r := NewRectangle(x1, y1, w, cellHeight, node.Id)
-	err = r.Draw(c)
+	err = r.Draw(c, MaxWidth, Padding)
 	if err != nil {
 		return
 	}
@@ -106,7 +103,7 @@ func (s *context2D) drawLines(c *Canvas) (err error) {
 	return
 }
 
-func getColumnWidths(mtx *core.Matrix) (widths []int) {
+func getColumnWidths(mtx *core.Matrix, MinCellWidth, MaxWidth, Padding int) (widths []int) {
 	columns := mtx.Width()
 	rows := mtx.Height()
 	for x := 0; x < columns; x++ {
@@ -116,7 +113,7 @@ func getColumnWidths(mtx *core.Matrix) (widths []int) {
 			if node == nil || node.IsAnchor {
 				continue
 			}
-			candidate := GetWidthFromTitle(node.Id)
+			candidate := GetWidthFromTitle(node.Id, MaxWidth, Padding)
 			if candidate > columnWidth {
 				columnWidth = candidate
 			}

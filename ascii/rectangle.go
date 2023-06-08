@@ -1,8 +1,5 @@
 package ascii
 
-const MaxWidth = 18
-const Padding = 1
-
 type Rectangle struct {
 	x1     int
 	y1     int
@@ -11,7 +8,7 @@ type Rectangle struct {
 	title  string
 }
 
-func GetWidthFromTitle(title string) int {
+func GetWidthFromTitle(title string, MaxWidth, Padding int) int {
 	if len(title)+2 > MaxWidth {
 		return MaxWidth
 	}
@@ -32,7 +29,7 @@ func NewRectangle(x1, y1, width, height int, title string) *Rectangle {
 	}
 }
 
-func (r *Rectangle) Draw(canvas *Canvas) (err error) {
+func (r *Rectangle) Draw(canvas *Canvas, MaxWidth, Padding int) (err error) {
 	err = r.drawCorners(canvas)
 	if err != nil {
 		return
@@ -41,16 +38,16 @@ func (r *Rectangle) Draw(canvas *Canvas) (err error) {
 	if err != nil {
 		return
 	}
-	err = r.drawTitle(canvas)
+	err = r.drawTitle(canvas, MaxWidth, Padding)
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (r *Rectangle) drawTitle(canvas *Canvas) (err error) {
+func (r *Rectangle) drawTitle(canvas *Canvas, MaxWidth, Padding int) (err error) {
 	coords := getCellCenter(r.width, r.height, r.x1, r.y1)
-	t := r.truncateTitle()
+	t := r.truncateTitle(MaxWidth, Padding)
 	halfLength := len(t) / 2
 	x := coords[0] - halfLength
 	y := coords[1]
@@ -64,7 +61,7 @@ func (r *Rectangle) drawTitle(canvas *Canvas) (err error) {
 	return
 }
 
-func (r *Rectangle) truncateTitle() string {
+func (r *Rectangle) truncateTitle(MaxWidth, Padding int) string {
 	max := MaxWidth - 2 - Padding*2
 	if len(r.title) > max {
 		var title []rune
